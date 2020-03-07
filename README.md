@@ -9,5 +9,4 @@ Below is an image of the DDP software serial streaming the 2D readings of the th
 
 ## USB to TTL Serial Support
 Below is an image of the Morland Bargraph inserted strategically into the DDP.  
- 
-![Morland Bargraph](images/MorlandBrgraph.jpg)
+![Morland Bargraph](images/MorlandBargraph.jpg)
