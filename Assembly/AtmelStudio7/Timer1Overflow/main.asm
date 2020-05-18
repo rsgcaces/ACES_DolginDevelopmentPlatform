@@ -1,5 +1,5 @@
-;PROJECT    :T1NormalOVF
-;PURPOSE    :Demonstration of Timer1 Normal Mode with Overflow Interrupt
+;PROJECT    :T0NormalOVF
+;PURPOSE    :Simple confirmation of Timer0 Normal Mode Overflow
 ;AUTHOR     :C. D'Arcy
 ;DATE       :2020 05 18
 ;DEVICE     :Dolgin Development Platform
@@ -7,36 +7,41 @@
 ;COURSE     :ICS4U
 ;STATUS     :Working
 ;REFERENCE  :https://mail.rsgc.on.ca/~cdarcy/Datasheets/doc0856.pdf
+;NOTES		:The limited range of Extended Ports [0x20-0x5F] is entirelt addressable
+;			:with the out instruction (no need to use sts) 
 .include	"prescalers84.h"    ;include all possible Timer/Counter prescaler defines
-.def        util    = r16       ;readability is enhanced through 'use' aliases for GP Registers
+.def    util		= r16       ;readability is enhanced through 'use' aliases for GP Registers
+.equ	DDR			= DDRA      ;typically, we'll need the use of PortA
+.equ	PORT		= PORTA     ;both its data direction register and output register and, eventually,
 .cseg                           ;locate for Code Segment (FLASH) 
 ; ***** INTERRUPT VECTOR TABLE ***********************************************
-.org        0x0000              ;start of Interrupt Vector Table (IVT) aka. Jump Table
-	rjmp    reset               ;lowest interrupt address == highest priority!
-.org        OVF1addr			;External Interrupt Request 0 (prefined in tn84def.inc)
-	rjmp    T1OVFISR			;
+.org    0x0000                  ;start of Interrupt Vector Table (IVT) aka. Jump Table
+		rjmp	reset			;lowest interrupt address == highest priority!
+.org	OVF0addr
+		rjmp	TIM0_OVF		;Timer0 Overflow Interrupt Service Routine
+.org	INT_VECTORS_SIZE        ;position segment LUT beyond the IVT
 ; ***** START OF CODE ********************************************************
-.org	INT_VECTORS_SIZE		;set Location Counter just beyond the interrupt jump table
-reset:                          ;PC jumps to here (start of code) on reset interrupt...
-	sbi		DDRA,PA0			;declare digital pin 0 for output
-	rcall	T1OVFSetup			;configure Timer/Counter 1 for Normal Mode
-	sei							;enable global interrupts 
-hold:
-    rjmp    hold                ;hold and admire the square wave on pin 0 
+reset:                          ;PC jumps to here (start of code) on reset interrupt...	ldi		util,low(RAMEND)    ;position the Stack pointer to the end of SRAM
+	ldi		util,low(RAMEND)	;ensure the Stack Pointer points to the end
+	out		SPL,util            ;of SRAM to ensure maximum stack size
+	ldi		util,high(RAMEND)   ;This is technically not necessary as the  
+	out		SPH,util            ;assembler does it for us, but it's good practice
+	sbi		DDR,PA0				;place an LED in digital pin 1 on the DDP, cathode in ground
+	rcall	T0Setup				;configure Mode 0
+	sei							;enable Global Interrupt System 
+ hold:
+	rjmp	hold				;nothing to do but watch
 
-T1OVFISR:						;Timer 1 Nomral Mode ISR 
-	sbi		PINA,PA0			;toggle the corresponding PORT bit for digital pin 0
-	reti						;return from interrupt
+T0Setup:
+	clr		util				;
+	out		TCCR0A,util			;Normal Mode 0
+	ldi		util,T0ps1024		;Maximum prescalar to see oscillations
+	out		TCCR0B,util			;2^23/2^10(PS)/2^8/2 = 2^6/2 = 32Hz
+	ldi		util,1<<TOIE0		;enable overflow interrupts
+	out		TIMSK0,util			;set it
+	ret
 
-T1OVFSetup:
-	clr		util				;zero everything for the most basic use
-	out		TCCR1A,util			;set for Timer/Counter1 Mode 0 (Normal)
-	ldi		util,T1ps64			;Clk/64 yields 1 Hz (approximately)
- 	out		TCCR1B,util			;do it
-	clr		util				;not technically necessary, but jworth a look... 
-	out		TCNT1H,util			;zero the high byte of the counter first
-	out		TCNT1L,util			;zero the low byte of the counter second
-	ldi		util,1<<TOIE1		;prepare to enable Timer 1 Overlow Interrupt capability
-	out		TIMSK1,util			;do it
-	ret							;return
-
+;ISR: Timer 0 Overflow  
+TIM0_OVF:
+	sbi		PINA,PA0			;toggle PORTA0		
+	reti
