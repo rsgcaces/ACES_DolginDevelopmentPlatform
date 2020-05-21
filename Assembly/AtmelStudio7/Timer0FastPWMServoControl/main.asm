@@ -20,7 +20,7 @@
 ;.org	OC0Aaddr				;not actually required since no specific action taken
 ;		rjmp	TIM0_CompA_Match;interrupt enabled below as trigger for AD Conversion
 .org	ADCCaddr				;this IS required since we need to read the pot
-		rjmp	ADC_Conv_Comp	;to contol horm position through OCR0B value
+		rjmp	ADC_Conv_Comp	;to control horm position through OCR0B value
 .org	INT_VECTORS_SIZE        ;position segment LUT beyond the IVT
 ; ***** START OF CODE ********************************************************
 reset:                          ;PC jumps to here (start of code) on reset interrupt...	ldi		util,low(RAMEND)    ;position the Stack pointer to the end of SRAM
