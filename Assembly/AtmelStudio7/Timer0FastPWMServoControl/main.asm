@@ -70,9 +70,6 @@ T0Setup:
 	out		TIMSK0,util			;set it
 	ret							;done
 
-TIM0_CompA_Match:
-	reti
-
 ADC_Conv_Comp:
 	in		util,ADCH			;ADLAR set so only read the high byte of the conversion
 	lsr		util				;map to a range of [0..7] so divide by 32
