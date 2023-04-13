@@ -1,11 +1,11 @@
 ;PROJECT    :BareMinimumDDBv7
 ;PURPOSE    :Code shell for AVR Assembly projects for the DDP (ATtiny84) 
-;AUTHOR     :C. DArcy	(apostrophe removed to avoid havoc)
-;DATE       :2022 03 30
+;AUTHOR     :
+;DATE       :2023 04 14
 ;DEVICE     :Dolgin Development Platform. Version 7.
 ;MCU        :ATtiny84
 ;COURSE     :ICS4U
-;STATUS     :Working
+;STATUS     :Not Working
 ;REFERENCE  :http://darcy.rsgc.on.ca/ACES/Datasheets/ATtiny84.pdf
 ;NOTES      :
 ;.include   "prescalars84.inc"  ;assembly directive equivalent to compiler directive #include
